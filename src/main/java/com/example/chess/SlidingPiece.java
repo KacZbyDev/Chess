@@ -1,0 +1,35 @@
+package com.example.chess;
+
+import java.util.ArrayList;
+
+public abstract class SlidingPiece extends Piece{
+    protected int[] directions;
+    protected SlidingPiece(boolean type, int index){
+        super(type,index);
+    }
+    @Override
+    public void setLegalMoves(Piece[] boardRepresentation){
+        ArrayList<Integer> moves = new ArrayList<Integer>();
+        for(int direction :directions){
+
+            int currentIndex  = this.index+direction;
+            int directionIndex = FieldToEndOfBoard.DIRECTION.get(direction);
+            for(int i = 0; i < FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];i++){
+                Piece currentSquare = boardRepresentation[currentIndex];
+                if(currentSquare!= null){
+                   if(currentSquare.type == this.type){
+                       break;
+                   }
+                   moves.add(currentIndex);
+
+                   break;
+               }else{
+                   moves.add(currentIndex);
+                   currentIndex+=direction;
+                }
+
+            }
+        }
+        this.legalMoves = moves;
+    }
+}
