@@ -14,5 +14,9 @@ public class Move {
     public int getNewIndex(){
         return this.newIndex;
     }
+    @Override
+    public String toString(){
+        return "old index: " + oldIndex +" new index: "+ newIndex;
+    }
 
 }

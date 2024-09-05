@@ -8,10 +8,12 @@ import java.util.ArrayList;
 public class Pawn extends Piece{
     int[] captureDirections;
     int moveDirection;
+    int enPassantRank;
     public Pawn(int index, boolean type) {
         super(type,index);
         this.captureDirections = this.type ? new int[]{-7,-9} : new int[] {9,7};
         this.moveDirection = this.type ? -8:8;
+        this.enPassantRank = this.type ? 3:5;
     }
     @Override
     public Image getImage() {
@@ -33,7 +35,8 @@ public class Pawn extends Piece{
             int currentIndex = this.index + captureDirection;
             int directionIndex = FieldToEndOfBoard.DIRECTION.get(captureDirection);
             int boardEdge = FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];
-            if(boardEdge != 0 && boardRepresentation[currentIndex] != null && boardRepresentation[currentIndex].type != this.type){
+            boolean isEnPassantValid = validateEnPassant(boardRepresentation,this.index, captureDirection);
+            if((boardEdge != 0 && boardRepresentation[currentIndex] != null && boardRepresentation[currentIndex].type != this.type) || isEnPassantValid){
                 moves.add(currentIndex);
             }
         }
@@ -57,6 +60,23 @@ public class Pawn extends Piece{
     public boolean isInBackRank(double row){
 
         return (this.type && row ==0) || (!this.type && row == 7);
+    }
+    public boolean validateEnPassant(Piece[] boardRepresentation, int position,int captureDirection){
+        Move lastMove;
+        int enPassantDirection = captureDirection == -9 || captureDirection == 7? -1:1;
+        int indexDifference = captureDirection >0?16:-16;
+        if(Game.getGameInstance().movesHistory.isEmpty()){
+            return false;
+        }else{
+            lastMove = Game.getGameInstance().movesHistory.getLast();
+        }
+
+        return boardRepresentation[lastMove.getNewIndex()] instanceof Pawn && position + enPassantDirection == lastMove.getNewIndex() && lastMove.getNewIndex()+indexDifference == lastMove.getOldIndex();
+
+
+    }
+    public boolean isCapturingEnPassant(int position, Piece[] boardRepresentation){
+        return position % 8 != getX() && boardRepresentation[position] == null;
     }
 
     @Override

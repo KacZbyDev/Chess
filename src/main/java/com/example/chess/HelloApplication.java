@@ -17,14 +17,9 @@ public class HelloApplication extends Application {
 
     @Override
     public void start(Stage stage) {
-
-
-
         Stage primaryStage = new Stage();
-
         Scene scene = new Scene(root);
-        Game game = new Game();
-
+        Game game = Game.getGameInstance();
         game.launchGame(root);
         primaryStage.setScene(scene);
         setWindowParameters(primaryStage);

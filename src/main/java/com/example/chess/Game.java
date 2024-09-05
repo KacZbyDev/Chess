@@ -7,11 +7,15 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import static com.example.chess.Board.SQUARE_SIZE;
 
 public class Game {
 
+    private static Game gameInstance;
+    ArrayList<Move> movesHistory = new ArrayList<>();
     Boolean turn;
     Piece[] boardRepresentation;
     final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
@@ -21,6 +25,16 @@ public class Game {
     int whiteKingPosition;
     int blackKingPosition;
 
+
+    private Game(){
+
+    }
+    public static Game getGameInstance(){
+        if(gameInstance == null){
+            gameInstance = new Game();
+        }
+        return gameInstance;
+    }
     public void launchGame(StackPane root){
         boardRepresentation = getPieceRepresentation(STARTING_POSITION_FEN);
         boardGroup.setOnMouseClicked(mouseEvent -> {
@@ -115,6 +129,7 @@ public class Game {
     private void gameLoopHandler(ImageView imageView) {
         boolean isPromoted = false;
         boolean isCastled = false;
+        int captureIndex;
         int beforeCastleRookPosition = 0;
         int afterCastleRookPosition = 0;
         Piece newPiece;
@@ -134,7 +149,13 @@ public class Game {
             } else {
                 newPiece = oldPosition;
             }
-            handleBoardState(boardShot, move.getOldIndex(), move.getNewIndex(), newPiece);
+            if(newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot)){
+                captureIndex = move.getNewIndex() + pawn.moveDirection*-1;
+            }else{
+                captureIndex = move.getNewIndex();
+            }
+
+            handleBoardState(boardShot, move.getOldIndex(), move.getNewIndex(),captureIndex, newPiece);
 
             handleKingPosition(boardShot[move.getNewIndex()], move.getNewIndex());
             if (newPiece instanceof King king && king.isCastling(move.getOldIndex(), move.getNewIndex())) {
@@ -145,7 +166,7 @@ public class Game {
                 int newRookPosition = move.getNewIndex() + castleDirection * -1;
 
 
-                handleBoardState(boardShot, oldRookPosition, newRookPosition, boardShot[oldRookPosition]);
+                handleBoardState(boardShot, oldRookPosition, newRookPosition,captureIndex, boardShot[oldRookPosition]);
 
                 afterCastleRookPosition = newRookPosition;
                 beforeCastleRookPosition = oldRookPosition;
@@ -153,15 +174,15 @@ public class Game {
 
             turn = !turn;
             int currentKingPosition = turn ? blackKingPosition : whiteKingPosition;
+            movesHistory.add(move);
             recalculateLegalMoves(boardShot);
 
 
             if (!King.isControled(currentKingPosition, boardShot)) {
                 boardRepresentation = boardShot;
-                if (boardShot[move.getNewIndex()] != null) {
-                    Node imageToDelete = pieceGroup.lookup("#" + move.getNewIndex());
-                    pieceGroup.getChildren().remove(imageToDelete);
-                }
+
+                Node imageToDelete = pieceGroup.lookup("#" + captureIndex);
+                pieceGroup.getChildren().remove(imageToDelete);
                 imageView.setId(String.valueOf(move.getNewIndex()));
                 updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
 
@@ -180,6 +201,7 @@ public class Game {
                 }
             } else {
                 turn = !turn;
+                movesHistory.removeLast();
                 resetImageViewPosition(imageView, move.getOldIndex());
             }
         } else {
@@ -253,8 +275,9 @@ public class Game {
         imageView.setX((oldIndex % 8) * SQUARE_SIZE);
         imageView.setY((oldIndex / 8) * SQUARE_SIZE);
     }
-    private void handleBoardState(Piece[] boardShot, int oldIndex, int newIndex, Piece piece){
+    private void handleBoardState(Piece[] boardShot, int oldIndex, int newIndex,int captureIndex, Piece piece){
         piece.index = newIndex;
+        boardShot[captureIndex] = null;
         boardShot[newIndex] = piece;
         boardShot[oldIndex] = null;
     }
