@@ -45,14 +45,14 @@ public class King extends Piece{
     }
     private void castlehandler(Piece[] boardRepresentation){
 
-        if(this.index == startingSquare){
+        if(this.index == startingSquare && this.isFirstMove()){
             for(int direction :castleDirections){
 
                 int currentIndex  = this.index+direction;
                 int directionIndex = FieldToEndOfBoard.DIRECTION.get(direction);
                 int iterationCount = FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];
                 for(int i = 0; i < iterationCount;i++){
-                    if(iterationCount - i ==1 && boardRepresentation[currentIndex] instanceof Rook){
+                    if(iterationCount - i ==1 && boardRepresentation[currentIndex] instanceof Rook rook && rook.isFirstMove()){
                         this.legalMoves.add(this.index+(direction*2));
                     }
                     if(boardRepresentation[currentIndex] != null){

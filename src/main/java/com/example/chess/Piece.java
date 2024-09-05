@@ -25,18 +25,20 @@ public abstract class Piece {
         return legalMoves;
     }
 
-    public boolean getIsOnStartedSquare(){
-        return this.isOnStartedSquare;
-    }
-    public void setIsOnStartedSquare(boolean value){
-        this.isOnStartedSquare = value;
-    }
 
     public abstract void setLegalMoves(Piece[] boardRepresentation);
 
     public abstract Piece deepCopy();
 
-
+    public boolean isFirstMove(){
+        ArrayList<Move> moves = Game.getGameInstance().movesHistory;
+        for(int i = moves.size()-1; i>=0;i--){
+            if(moves.get(i).getNewIndex() == this.index){
+                return false;
+            }
+        }
+        return true;
+    }
 
     public void setLegalMoves(){
         this.legalMoves = new ArrayList<>();
