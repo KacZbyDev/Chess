@@ -8,6 +8,8 @@ import javafx.scene.input.MouseButton;
 
 import java.util.Objects;
 
+import static com.example.chess.Game.boardGroup;
+
 public class Board {
 
     public final static int BOARD_SIZE = 8;
@@ -56,6 +58,22 @@ public class Board {
         else{
             rectangle.setFill(rectangle.precomputedColors[1]);
         }
+    }
+    public void squareUpdater(int index, int arrayPosition){
+        Square square = (Square) boardGroup.lookup("#" + index+"r");
+        square.isHighlighted = true;
+        square.setFill(square.precomputedColors[2]);
+        highlightedSquares[arrayPosition] =square;
+    }
+    public void updateHighlightedSquares(int oldIndex, int newIndex) {
+        for (Square square : highlightedSquares) {
+            if (square != null) {
+                square.isHighlighted = false;
+                square.setFill(square.precomputedColors[0]);
+            }
+        }
+        squareUpdater(oldIndex,0);
+        squareUpdater(newIndex, 1);
     }
 }
 

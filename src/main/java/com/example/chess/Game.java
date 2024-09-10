@@ -184,7 +184,7 @@ public class Game {
                 Node imageToDelete = pieceGroup.lookup("#" + captureIndex);
                 pieceGroup.getChildren().remove(imageToDelete);
                 imageView.setId(String.valueOf(move.getNewIndex()));
-                updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
+                board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
 
                 if (isPromoted) {
                     pieceGroup.getChildren().remove(imageView);
@@ -209,22 +209,8 @@ public class Game {
         }
     }
 
-    private void updateHighlightedSquares(int oldIndex, int newIndex) {
-        for (Square square : board.highlightedSquares) {
-            if (square != null) {
-                square.isHighlighted = false;
-                square.setFill(square.precomputedColors[0]);
-            }
-        }
-        Square previousSquare = (Square) boardGroup.lookup("#" + oldIndex + "r");
-        Square currentSquare = (Square) boardGroup.lookup("#" + newIndex + "r");
-        previousSquare.isHighlighted = true;
-        currentSquare.isHighlighted = true;
-        previousSquare.setFill(previousSquare.precomputedColors[2]);
-        currentSquare.setFill(currentSquare.precomputedColors[2]);
-        board.highlightedSquares[0] = previousSquare;
-        board.highlightedSquares[1] = currentSquare;
-    }
+
+
 
 
     private void setImageViewParamaters(Piece piece) {
