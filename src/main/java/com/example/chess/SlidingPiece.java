@@ -13,8 +13,8 @@ public abstract class SlidingPiece extends Piece{
         for(int direction :directions){
 
             int currentIndex  = this.index+direction;
-            int directionIndex = FieldToEndOfBoard.DIRECTION.get(direction);
-            for(int i = 0; i < FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];i++){
+
+            for(int i = 0; i < FieldToEndOfBoard.getFields(this.index,direction);i++){
                 Piece currentSquare = boardRepresentation[currentIndex];
                 if(currentSquare!= null){
                    if(currentSquare.type == this.type){

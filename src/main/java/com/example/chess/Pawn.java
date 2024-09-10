@@ -33,8 +33,7 @@ public class Pawn extends Piece{
         ArrayList<Integer> moves = new ArrayList<>();
         for(int captureDirection: captureDirections){
             int currentIndex = this.index + captureDirection;
-            int directionIndex = FieldToEndOfBoard.DIRECTION.get(captureDirection);
-            int boardEdge = FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];
+            int boardEdge = FieldToEndOfBoard.getFields(this.index,captureDirection);
             boolean isEnPassantValid = validateEnPassant(boardRepresentation,this.index, captureDirection);
             if((boardEdge != 0 && boardRepresentation[currentIndex] != null && boardRepresentation[currentIndex].type != this.type) || isEnPassantValid){
                 moves.add(currentIndex);

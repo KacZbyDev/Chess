@@ -58,6 +58,10 @@ public class FieldToEndOfBoard {
     public static int getDirectionIndex(int direction){
         return DIRECTION.get(direction);
     }
+    public static int getFields(int position, int direction){
+        int directionIndex = getDirectionIndex(direction);
+        return FIELDTOENDOFBOARD[position][directionIndex];
+    }
 
 
 }

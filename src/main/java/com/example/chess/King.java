@@ -32,8 +32,8 @@ public class King extends Piece{
         ArrayList<Integer> moves = new ArrayList<>();
         for (int direction : directions){
             int currentIndex = this.index + direction;
-            int directionIndex = FieldToEndOfBoard.DIRECTION.get(direction);
-            int toEndOfTheBoard = FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];
+
+            int toEndOfTheBoard = FieldToEndOfBoard.getFields(this.index,direction);
             if(toEndOfTheBoard != 0 && (boardRepresentation[currentIndex] == null || boardRepresentation[currentIndex].type != this.type)){
                 moves.add(currentIndex);
 

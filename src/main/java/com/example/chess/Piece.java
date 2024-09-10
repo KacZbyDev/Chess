@@ -8,7 +8,6 @@ public abstract class Piece {
     protected int index;
     protected boolean type;
     protected ArrayList<Integer> legalMoves;
-    protected boolean isOnStartedSquare;
     public Piece(boolean type, int index) {
 
         this.type = type;
