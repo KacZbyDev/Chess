@@ -2,8 +2,6 @@ package com.example.chess;
 
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
@@ -19,11 +17,12 @@ public class Game {
     Boolean turn;
     Piece[] boardRepresentation;
     final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    Group pieceGroup = new Group();
+    static Group pieceGroup = new Group();
     static Group boardGroup = new Group();
     Board board = new Board();
     int whiteKingPosition;
     int blackKingPosition;
+    BoardStateUiUpdater boardStateUiUpdater = new BoardStateUiUpdater();
 
 
     private Game(){
@@ -36,6 +35,7 @@ public class Game {
         return gameInstance;
     }
     public void launchGame(StackPane root){
+
         boardRepresentation = getPieceRepresentation(STARTING_POSITION_FEN);
         boardGroup.setOnMouseClicked(mouseEvent -> {
             if(mouseEvent.getButton() == MouseButton.PRIMARY){
@@ -81,12 +81,12 @@ public class Game {
                  if(turn == piece.type){
                      piece.setLegalMoves(boardRepresentation);
                  }
-                 setImageViewParamaters(piece);
+                 boardStateUiUpdater.setImageViewParamaters(piece);
              }
         }
     }
 
-    private void makeDraggable(ImageView imageView) {
+    public void makeDraggable(ImageView imageView) {
         int index = Integer.parseInt(imageView.getId());
         Piece piece = boardRepresentation[index];
 
@@ -127,17 +127,13 @@ public class Game {
     }
 
     private void gameLoopHandler(ImageView imageView) {
-        boolean isPromoted = false;
-        boolean isCastled = false;
         int captureIndex;
-        int beforeCastleRookPosition = 0;
-        int afterCastleRookPosition = 0;
         Piece newPiece;
         double row = Math.round(imageView.getX() / SQUARE_SIZE);
         double column = Math.round(imageView.getY() / SQUARE_SIZE);
 
         Move move = new Move(Integer.parseInt(imageView.getId()), (int) column * 8 + (int) row);
-
+        boardStateUiUpdater.setUiUpdate(0,move.getOldIndex(),boardRepresentation[move.getOldIndex()]);
         if (boardRepresentation[move.getOldIndex()].isLegal(move.getNewIndex())) {
             Piece[] boardShot = getDeepCopy(boardRepresentation);
             Piece oldPosition = boardShot[move.getOldIndex()];
@@ -145,7 +141,7 @@ public class Game {
 
             if (oldPosition instanceof Pawn && ((Pawn) oldPosition).isInBackRank(column)) {
                 newPiece = new Queen(oldPosition.index, oldPosition.type);
-                isPromoted = true;
+
             } else {
                 newPiece = oldPosition;
             }
@@ -154,12 +150,13 @@ public class Game {
             }else{
                 captureIndex = move.getNewIndex();
             }
+            boardStateUiUpdater.setUiUpdate(1,captureIndex,boardRepresentation[captureIndex]);
 
             handleBoardState(boardShot, move.getOldIndex(), move.getNewIndex(),captureIndex, newPiece);
 
             handleKingPosition(boardShot[move.getNewIndex()], move.getNewIndex());
             if (newPiece instanceof King king && king.isCastling(move.getOldIndex(), move.getNewIndex())) {
-                isCastled = true;
+
                 int castleDirection = king.getCastleDirection(move.getOldIndex(), move.getNewIndex());
                 int directionIndex = FieldToEndOfBoard.getDirectionIndex(castleDirection);
                 int oldRookPosition = move.getOldIndex() + FieldToEndOfBoard.FIELDTOENDOFBOARD[move.getOldIndex()][directionIndex] * castleDirection;
@@ -167,9 +164,9 @@ public class Game {
 
 
                 handleBoardState(boardShot, oldRookPosition, newRookPosition,captureIndex, boardShot[oldRookPosition]);
+                boardStateUiUpdater.setUiUpdate(1,oldRookPosition,boardShot[newRookPosition]);
 
-                afterCastleRookPosition = newRookPosition;
-                beforeCastleRookPosition = oldRookPosition;
+
             }
 
             turn = !turn;
@@ -180,25 +177,11 @@ public class Game {
 
             if (!King.isControled(currentKingPosition, boardShot)) {
                 boardRepresentation = boardShot;
-
-                Node imageToDelete = pieceGroup.lookup("#" + captureIndex);
-                pieceGroup.getChildren().remove(imageToDelete);
                 imageView.setId(String.valueOf(move.getNewIndex()));
+                boardStateUiUpdater.deleteImageViews();
+                boardStateUiUpdater.createImageView();
                 board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
 
-                if (isPromoted) {
-                    pieceGroup.getChildren().remove(imageView);
-                    setImageViewParamaters(newPiece);
-                } else {
-                    updateUiPosition(imageView, column, row);
-                }
-
-                if (isCastled) {
-                    Piece castledRook = boardRepresentation[afterCastleRookPosition];
-                    ImageView rookImageView = (ImageView) pieceGroup.lookup("#" + beforeCastleRookPosition);
-                    rookImageView.setId(String.valueOf(afterCastleRookPosition));
-                    updateUiPosition(rookImageView, castledRook.getY(), castledRook.getX());
-                }
             } else {
                 turn = !turn;
                 movesHistory.removeLast();
@@ -213,18 +196,6 @@ public class Game {
 
 
 
-    private void setImageViewParamaters(Piece piece) {
-        Image image = piece.getImage();
-        ImageView imageView = new ImageView(image);
-        imageView.setId(String.valueOf(piece.index));
-        imageView.setX(piece.getX() * SQUARE_SIZE);
-        imageView.setY(piece.getY() * SQUARE_SIZE);
-        imageView.setPreserveRatio(true);
-        imageView.setFitHeight(SQUARE_SIZE);
-        imageView.setFitWidth(SQUARE_SIZE);
-        makeDraggable(imageView);
-        pieceGroup.getChildren().add(imageView);
-    }
     private void recalculateLegalMoves(Piece[] board){
         for(Piece piece:board){
             if(piece!= null){
