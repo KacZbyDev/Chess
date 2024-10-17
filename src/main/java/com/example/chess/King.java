@@ -40,10 +40,10 @@ public class King extends Piece{
             }
         }
         this.legalMoves = moves;
-        castlehandler(boardRepresentation);
+        castleHandler(boardRepresentation);
 
     }
-    private void castlehandler(Piece[] boardRepresentation){
+    private void castleHandler(Piece[] boardRepresentation){
 
         if(this.index == startingSquare && this.isFirstMove()){
             for(int direction :castleDirections){

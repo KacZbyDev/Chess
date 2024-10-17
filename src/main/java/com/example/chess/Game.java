@@ -8,43 +8,42 @@ import javafx.scene.layout.StackPane;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+
 import static com.example.chess.Board.SQUARE_SIZE;
 
 public class Game {
 
-    private static Game gameInstance;
-    ArrayList<Move> movesHistory = new ArrayList<>();
-    Boolean turn;
-    Piece[] boardRepresentation;
-    final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
-    static Group pieceGroup = new Group();
-    static Group boardGroup = new Group();
-    Board board = new Board();
-    int whiteKingPosition;
-    int blackKingPosition;
-    BoardStateUiUpdater boardStateUiUpdater = new BoardStateUiUpdater();
+    public static Game gameInstance;
+    public final ArrayList<Move> movesHistory = new ArrayList<>();
+    private BoardState boardState;
+    private final String STARTING_POSITION_FEN = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1";
+    public static final Group pieceGroup = new Group();
+    public static final Group boardGroup = new Group();
+    private final Board board = new Board();
+    private final BoardStateUiUpdater boardStateUiUpdater = new BoardStateUiUpdater();
 
-
-    private Game(){
-
+    private Game() {
+        this.boardState = new BoardState();
     }
+
     public static Game getGameInstance(){
         if(gameInstance == null){
             gameInstance = new Game();
         }
         return gameInstance;
     }
-    public void launchGame(StackPane root){
 
-        boardRepresentation = getPieceRepresentation(STARTING_POSITION_FEN);
+    public void launchGame(StackPane root){
+        boardState.boardRepresentation = getPieceRepresentation(STARTING_POSITION_FEN);
+        boardState.turn = STARTING_POSITION_FEN.split(" ")[1].equals("w");
         boardGroup.setOnMouseClicked(mouseEvent -> {
             if(mouseEvent.getButton() == MouseButton.PRIMARY){
                 board.unHighlight(boardGroup.getChildren());
             }
         });
         board.initializeBoard(boardGroup);
-        initializePieces(boardRepresentation);
-        root.getChildren().addAll(boardGroup,pieceGroup);
+        initializePieces();
+        root.getChildren().addAll(boardGroup, pieceGroup);
     }
 
     public Piece[] getPieceRepresentation(String fen) {
@@ -54,76 +53,68 @@ public class Game {
         int index = 0;
 
         for (char letter : splitFen[0].toCharArray()) {
-            if (letter != '/') {
-                if (Character.isDigit(letter)) {
-                    index += Character.getNumericValue(letter);
-                } else {
-                    if (map.containsKey(Character.toUpperCase(letter))) {
-                        result[index] = PieceFactory.getPieceInstance(letter,index);
-                        handleKingPosition(result[index], index);
-                        index++;
-                    }
-                    else{
-                        throw new IllegalArgumentException("invalid FEN string");
-                    }
-
+            if (letter == '/') {
+                continue;
+            }
+            if (Character.isDigit(letter)) {
+                index += Character.getNumericValue(letter);
+            } else {
+                if (map.containsKey(Character.toUpperCase(letter))) {
+                    result[index] = map.get(Character.toUpperCase(letter)).apply(index, Character.isUpperCase(letter));
+                    index++;
                 }
-
             }
         }
-        turn = splitFen[1].equals("w");
+
         return result;
     }
 
-    public void initializePieces(Piece[] boardRepresentation) {
-        for (Piece piece : boardRepresentation) {
-             if(piece != null) {
-                 if(turn == piece.type){
-                     piece.setLegalMoves(boardRepresentation);
-                 }
-                 boardStateUiUpdater.setImageViewParamaters(piece);
-             }
+    public void initializePieces() {
+        for (Piece piece : boardState.boardRepresentation) {
+            if(piece != null) {
+                if(boardState.turn == piece.type){
+                    piece.setLegalMoves(boardState.boardRepresentation);
+                } else {
+                    piece.setLegalMoves();
+                }
+                boardStateUiUpdater.setImageViewParameters(piece);
+            }
         }
     }
 
     public void makeDraggable(ImageView imageView) {
         int index = Integer.parseInt(imageView.getId());
-        Piece piece = boardRepresentation[index];
+        Piece piece = boardState.getPiece(index);
 
-        imageView.setOnMouseEntered( _ -> {
-            if(piece.type == turn){
+        imageView.setOnMouseEntered(_ -> {
+            if(piece.type == boardState.turn){
                 imageView.setCursor(Cursor.HAND);
             }
-
         });
-        imageView.setOnMouseReleased( _ -> {
-            if(piece.type == turn){
+
+        imageView.setOnMouseReleased(_ -> {
+            if(piece.type == boardState.turn){
                 imageView.setCursor(Cursor.HAND);
                 imageView.toBack();
                 gameLoopHandler(imageView);
             }
-
-
         });
+
         imageView.setOnMouseDragged(event -> {
-            if(piece.type == turn){
-                if(event.getButton() == MouseButton.PRIMARY){
-                    board.unHighlight(boardGroup.getChildren());
-                    double newX = event.getSceneX() - 40;
-                    double newY = event.getSceneY() - 40;
-                    imageView.toFront();
-                    if (newX >= 0 && newX <= (Board.BOARD_SIZE - 1) * SQUARE_SIZE) {
-                        imageView.setX(newX);
-                    }
-                    if (newY >= 0 && newY <= (Board.BOARD_SIZE - 1) * SQUARE_SIZE) {
-                        imageView.setY(newY);
-                    }
+            if(piece.type == boardState.turn && event.getButton() == MouseButton.PRIMARY){
+                board.unHighlight(boardGroup.getChildren());
+                double newX = event.getSceneX() - 40;
+                double newY = event.getSceneY() - 40;
+                imageView.toFront();
+
+                if (newX >= 0 && newX <= (Board.BOARD_SIZE - 1) * SQUARE_SIZE) {
+                    imageView.setX(newX);
                 }
-
+                if (newY >= 0 && newY <= (Board.BOARD_SIZE - 1) * SQUARE_SIZE) {
+                    imageView.setY(newY);
+                }
             }
-
         });
-
     }
 
     private void gameLoopHandler(ImageView imageView) {
@@ -132,58 +123,60 @@ public class Game {
         double row = Math.round(imageView.getX() / SQUARE_SIZE);
         double column = Math.round(imageView.getY() / SQUARE_SIZE);
 
-        Move move = new Move(Integer.parseInt(imageView.getId()), (int) column * 8 + (int) row);
-        boardStateUiUpdater.setUiUpdate(0,move.getOldIndex(),boardRepresentation[move.getOldIndex()]);
-        if (boardRepresentation[move.getOldIndex()].isLegal(move.getNewIndex())) {
-            Piece[] boardShot = getDeepCopy(boardRepresentation);
-            Piece oldPosition = boardShot[move.getOldIndex()];
+        int oldIndex = Integer.parseInt(imageView.getId());
+        int newIndex = (int) column * 8 + (int) row;
 
+        Move move = new Move(oldIndex, newIndex);
 
-            if (oldPosition instanceof Pawn && ((Pawn) oldPosition).isInBackRank(column)) {
-                newPiece = new Queen(oldPosition.index, oldPosition.type);
+        Piece movingPiece = boardState.getPiece(oldIndex);
+        if (movingPiece == null) {
+            resetImageViewPosition(imageView, oldIndex);
+            return;
+        }
 
+        if (movingPiece.isLegal(move.getNewIndex())) {
+            BoardState boardShot = new BoardState(boardState);
+
+            if (movingPiece instanceof Pawn && ((Pawn) movingPiece).isInBackRank(column)) {
+                newPiece = new Queen(newIndex, movingPiece.type);
             } else {
-                newPiece = oldPosition;
+                newPiece = movingPiece.deepCopy();
+                newPiece.index = newIndex;
             }
-            if(newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot)){
-                captureIndex = move.getNewIndex() + pawn.moveDirection*-1;
-            }else{
+
+            if(newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot.boardRepresentation)){
+                captureIndex = move.getNewIndex() + pawn.moveDirection * -1;
+            } else {
                 captureIndex = move.getNewIndex();
             }
-            boardStateUiUpdater.setUiUpdate(1,captureIndex,boardRepresentation[captureIndex]);
 
-            handleBoardState(boardShot, move.getOldIndex(), move.getNewIndex(),captureIndex, newPiece);
+            boardStateUiUpdater.setUiUpdate(1, captureIndex, null);
+            boardShot.handleBoardState(oldIndex, newIndex, captureIndex, newPiece);
+            boardStateUiUpdater.setUiUpdate(0, move.getOldIndex(), newPiece);
+            boardShot.handleKingPosition(boardShot.getPiece(newIndex), newIndex);
 
-            handleKingPosition(boardShot[move.getNewIndex()], move.getNewIndex());
-            if (newPiece instanceof King king && king.isCastling(move.getOldIndex(), move.getNewIndex())) {
-
-                int castleDirection = king.getCastleDirection(move.getOldIndex(), move.getNewIndex());
+            if (newPiece instanceof King king && king.isCastling(oldIndex, newIndex)) {
+                int castleDirection = king.getCastleDirection(oldIndex, newIndex);
                 int directionIndex = FieldToEndOfBoard.getDirectionIndex(castleDirection);
                 int oldRookPosition = move.getOldIndex() + FieldToEndOfBoard.FIELDTOENDOFBOARD[move.getOldIndex()][directionIndex] * castleDirection;
                 int newRookPosition = move.getNewIndex() + castleDirection * -1;
 
-
-                handleBoardState(boardShot, oldRookPosition, newRookPosition,captureIndex, boardShot[oldRookPosition]);
-                boardStateUiUpdater.setUiUpdate(1,oldRookPosition,boardShot[newRookPosition]);
-
-
+                boardShot.handleBoardState(oldRookPosition, newRookPosition, -1, boardShot.boardRepresentation[oldRookPosition]);
+                boardStateUiUpdater.setUiUpdate(1, oldRookPosition, boardShot.boardRepresentation[newRookPosition]);
             }
 
-            turn = !turn;
-            int currentKingPosition = turn ? blackKingPosition : whiteKingPosition;
+            boardShot.turn = !boardShot.turn;
             movesHistory.add(move);
-            recalculateLegalMoves(boardShot);
+            boardShot.recalculateLegalMoves();
+            int currentKingPosition = boardShot.turn ? boardShot.blackKingPosition : boardShot.whiteKingPosition;
 
-
-            if (!King.isControled(currentKingPosition, boardShot)) {
-                boardRepresentation = boardShot;
-                imageView.setId(String.valueOf(move.getNewIndex()));
+            if (!boardShot.isControled(currentKingPosition)) {
+                boardState = boardShot;
                 boardStateUiUpdater.deleteImageViews();
                 boardStateUiUpdater.createImageView();
                 board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
-
             } else {
-                turn = !turn;
+                boardShot.turn = !boardShot.turn;
                 movesHistory.removeLast();
                 resetImageViewPosition(imageView, move.getOldIndex());
             }
@@ -192,59 +185,8 @@ public class Game {
         }
     }
 
-
-
-
-
-    private void recalculateLegalMoves(Piece[] board){
-        for(Piece piece:board){
-            if(piece!= null){
-                if(piece.type == turn){
-                    piece.setLegalMoves(board);
-                }
-                else{
-                    piece.setLegalMoves();
-                }
-            }
-        }
-    }
-    private void handleKingPosition(Piece piece, int index){
-        if(piece instanceof King){
-            if(piece.type){
-                whiteKingPosition = index;
-            }
-            else{
-                blackKingPosition = index;
-            }
-        }
-    }
-    private Piece[] getDeepCopy(Piece[] board){
-        Piece[] temp = new Piece[board.length];
-        for(int i = 0; i< board.length; i++){
-            if(board[i] != null){
-                temp[i] = board[i].deepCopy();
-            }
-        }
-        return temp;
-
-    }
     private void resetImageViewPosition(ImageView imageView, int oldIndex){
         imageView.setX((oldIndex % 8) * SQUARE_SIZE);
         imageView.setY((oldIndex / 8) * SQUARE_SIZE);
     }
-    private void handleBoardState(Piece[] boardShot, int oldIndex, int newIndex,int captureIndex, Piece piece){
-        piece.index = newIndex;
-        boardShot[captureIndex] = null;
-        boardShot[newIndex] = piece;
-        boardShot[oldIndex] = null;
-    }
-    private void updateUiPosition(ImageView imageView, double col, double row){
-        imageView.setX(row * SQUARE_SIZE);
-        imageView.setY(col * SQUARE_SIZE);
-    }
-
 }
-
-
-
-

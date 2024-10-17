@@ -20,21 +20,22 @@ public class BoardStateUiUpdater {
     public void deleteImageViews(){
         for(int i =0;i<imageToDelete.length; i++){
             Node imageToDelete = pieceGroup.lookup("#" + this.imageToDelete[i]);
+            System.out.println("image to delete: " + this.imageToDelete[i]);
             pieceGroup.getChildren().remove(imageToDelete);
             this.imageToDelete[i] = -1;
         }
     }
     public void createImageView(){
         for(int i = 0; i<imageToCreate.length;i++){
+
             if(imageToCreate[i] != null){
-                setImageViewParamaters(imageToCreate[i]);
+                setImageViewParameters(imageToCreate[i]);
             }
 
             imageToCreate[i] = null;
         }
     }
-    public void setImageViewParamaters(Piece piece) {
-        System.out.println(piece.index);
+    public void setImageViewParameters(Piece piece) {
         Image image = piece.getImage();
         ImageView imageView = new ImageView(image);
         imageView.setId(String.valueOf(piece.index));
