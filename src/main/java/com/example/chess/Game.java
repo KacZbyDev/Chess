@@ -2,9 +2,12 @@ package com.example.chess;
 
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Scene;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.StackPane;
+import javafx.scene.text.Text;
+import javafx.stage.Stage;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -173,10 +176,22 @@ public class Game {
 
             if (!boardShot.isControled(currentKingPosition)) {
                 boardState = boardShot;
+                if(!boardState.isAnyLegalMoves()){
+                    Stage stage = (Stage) boardGroup.getScene().getWindow();
+                    StackPane root = new StackPane();
+                    Scene scene = new Scene(root);
+                    String winner = boardState.turn ? "Black" : "White";
+                    Text text = new Text("Checkmate! the winner is " + winner);
+                    root.getChildren().add(text);
+                    stage.setScene(scene);
+                }
                 boardStateUiUpdater.deleteImageViews();
                 boardStateUiUpdater.createImageView();
                 board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
             } else {
+                if(!boardState.isAnyLegalMoves()){
+                    System.out.println("stalemate");
+                }
                 boardShot.turn = !boardShot.turn;
                 movesHistory.removeLast();
                 resetImageViewPosition(imageView, move.getOldIndex());

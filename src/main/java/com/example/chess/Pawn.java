@@ -37,7 +37,7 @@ public class Pawn extends Piece{
             int boardEdge = FieldToEndOfBoard.getFields(this.index,captureDirection);
             boolean isEnPassantValid = validateEnPassant(boardRepresentation,this.index, captureDirection);
             if((boardEdge != 0 && boardRepresentation[currentIndex] != null && boardRepresentation[currentIndex].type != this.type) || isEnPassantValid){
-                moves.add(currentIndex);
+                addMove(moves,boardState,this.index,currentIndex, ignoreKingSafety);
             }
         }
         int offset = (this.type && getY()==6) || (!this.type && getY() == 1) ? 2:1;
@@ -45,7 +45,7 @@ public class Pawn extends Piece{
         for(int i = 0; i<offset; i++){
             int currentIndex = this.index + this.moveDirection * (i+1);
             if(boardRepresentation[currentIndex] == null){
-                moves.add(currentIndex);
+                addMove(moves,boardState,this.index,currentIndex, ignoreKingSafety);
             }
             else{
                 break;

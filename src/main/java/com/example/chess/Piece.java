@@ -53,6 +53,7 @@ public abstract class Piece {
     }
 
     protected boolean isValid(BoardState boardState, int oldIndex, int newIndex){
+
         BoardState virtualBoardState = new BoardState(boardState);
         virtualBoardState.handleKingPosition(virtualBoardState.getPiece(oldIndex),newIndex);
         virtualBoardState.handleBoardState(oldIndex,newIndex,-1,virtualBoardState.getPiece(oldIndex));
@@ -60,6 +61,17 @@ public abstract class Piece {
         virtualBoardState.recalculateLegalMoves(true);
         return !virtualBoardState.isControled(virtualBoardState.getCurrentKingPosition());
     }
+    protected void addMove(ArrayList <Integer> moves, BoardState boardState, int oldIndex, int newIndex, boolean ignoreKingSafety){
+        if(!ignoreKingSafety){
+            if(isValid(boardState, oldIndex, newIndex)){
+                moves.add(newIndex);
+            }
+        }
+        else{
+            moves.add(newIndex);
+        }
+    }
+
     public abstract Image getImage();
 
 

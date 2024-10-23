@@ -35,8 +35,7 @@ public class King extends Piece{
 
             int toEndOfTheBoard = FieldToEndOfBoard.getFields(this.index,direction);
             if(toEndOfTheBoard != 0 && (boardRepresentation[currentIndex] == null || boardRepresentation[currentIndex].type != this.type)){
-                if(!ignoreKingSafety) System.out.println(isValid(boardState, this.index, index));
-                moves.add(currentIndex);
+                addMove(moves,boardState,this.index,currentIndex, ignoreKingSafety);
 
             }
         }

@@ -22,11 +22,12 @@ public abstract class SlidingPiece extends Piece{
                        break;
                    }
 
-                   moves.add(currentIndex);
+                    addMove(moves,boardState,this.index,currentIndex, ignoreKingSafety);
 
                    break;
                }else{
-                   moves.add(currentIndex);
+                    addMove(moves,boardState,this.index,currentIndex, ignoreKingSafety);
+
                    currentIndex+=direction;
                 }
 

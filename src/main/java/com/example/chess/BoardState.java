@@ -96,5 +96,13 @@ public class BoardState {
     public int getCurrentKingPosition(){
         return !turn ? whiteKingPosition : blackKingPosition;
     }
+    public boolean isAnyLegalMoves(){
+        for(Piece piece: boardRepresentation){
+            if(piece != null && piece.type == turn && !piece.getLegalMoves().isEmpty()){
+                return true;
+            }
+
+        }return false;
+    }
 
 }

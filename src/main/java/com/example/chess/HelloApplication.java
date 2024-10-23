@@ -14,7 +14,6 @@ public class HelloApplication extends Application {
 
 
     static StackPane root = new StackPane();
-
     @Override
     public void start(Stage stage) {
         Stage primaryStage = new Stage();

@@ -47,12 +47,12 @@ public class Knight extends Piece {
             if (isInRowRange && isInColRange) {
                 int index = 8 * trueRow + trueCol;
                 if (boardRepresentation[index] == null || boardRepresentation[index].type != this.type) {
-                    if(!ignoreKingSafety) System.out.println(isValid(boardState, this.index, index));
-                    moves.add(index);
+                    addMove(moves,boardState,this.index,index, ignoreKingSafety);
                 }
             }
         }
         this.legalMoves = moves;
+
     }
     @Override public Piece deepCopy(){
         return new Knight(this.index,this.type);
