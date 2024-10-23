@@ -73,10 +73,11 @@ public class Game {
         for (Piece piece : boardState.boardRepresentation) {
             if(piece != null) {
                 if(boardState.turn == piece.type){
-                    piece.setLegalMoves(boardState.boardRepresentation);
+                    piece.setLegalMoves(boardState, false);
                 } else {
                     piece.setLegalMoves();
                 }
+                boardState.handleKingPosition(piece, piece.index);
                 boardStateUiUpdater.setImageViewParameters(piece);
             }
         }
@@ -167,7 +168,7 @@ public class Game {
 
             boardShot.turn = !boardShot.turn;
             movesHistory.add(move);
-            boardShot.recalculateLegalMoves();
+            boardShot.recalculateLegalMoves(false);
             int currentKingPosition = boardShot.turn ? boardShot.blackKingPosition : boardShot.whiteKingPosition;
 
             if (!boardShot.isControled(currentKingPosition)) {

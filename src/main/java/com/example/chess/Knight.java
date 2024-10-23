@@ -29,7 +29,8 @@ public class Knight extends Piece {
         return "Knight";
     }
     @Override
-    public void setLegalMoves(Piece[] boardRepresentation) {
+    public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety) {
+        Piece[] boardRepresentation = boardState.boardRepresentation;
         ArrayList<Integer> moves = new ArrayList<>();
         int[][] knightMoves = {
                 {2, 1}, {2, -1}, {-2, 1}, {-2, -1},
@@ -46,6 +47,7 @@ public class Knight extends Piece {
             if (isInRowRange && isInColRange) {
                 int index = 8 * trueRow + trueCol;
                 if (boardRepresentation[index] == null || boardRepresentation[index].type != this.type) {
+                    if(!ignoreKingSafety) System.out.println(isValid(boardState, this.index, index));
                     moves.add(index);
                 }
             }

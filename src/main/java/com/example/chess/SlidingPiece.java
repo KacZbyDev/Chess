@@ -8,7 +8,8 @@ public abstract class SlidingPiece extends Piece{
         super(type,index);
     }
     @Override
-    public void setLegalMoves(Piece[] boardRepresentation){
+    public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety){
+        Piece[] boardRepresentation = boardState.boardRepresentation;
         ArrayList<Integer> moves = new ArrayList<Integer>();
         for(int direction :directions){
 
@@ -20,6 +21,7 @@ public abstract class SlidingPiece extends Piece{
                    if(currentSquare.type == this.type){
                        break;
                    }
+
                    moves.add(currentIndex);
 
                    break;

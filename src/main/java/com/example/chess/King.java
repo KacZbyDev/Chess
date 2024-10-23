@@ -27,14 +27,15 @@ public class King extends Piece{
     }
 
     @Override
-    public void setLegalMoves(Piece[] boardRepresentation) {
-
+    public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety) {
+        Piece[] boardRepresentation = boardState.boardRepresentation;
         ArrayList<Integer> moves = new ArrayList<>();
         for (int direction : directions){
             int currentIndex = this.index + direction;
 
             int toEndOfTheBoard = FieldToEndOfBoard.getFields(this.index,direction);
             if(toEndOfTheBoard != 0 && (boardRepresentation[currentIndex] == null || boardRepresentation[currentIndex].type != this.type)){
+                if(!ignoreKingSafety) System.out.println(isValid(boardState, this.index, index));
                 moves.add(currentIndex);
 
             }
@@ -70,38 +71,6 @@ public class King extends Piece{
         return "King";
     }
 
-    public static boolean isControled(int kingPosition, Piece[] boardRepresentation) {
-        for (Piece piece : boardRepresentation) {
-            if (piece != null && canCaptureKing(piece, kingPosition)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
-    private static boolean canCaptureKing(Piece piece, int kingPosition) {
-        for (int move : piece.getLegalMoves()) {
-            if (piece instanceof Pawn) {
-                if (isPawnCapturingKing((Pawn) piece, move, kingPosition)) {
-                    return true;
-                }
-            } else {
-                if (move == kingPosition) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    private static boolean isPawnCapturingKing(Pawn pawn, int move, int kingPosition) {
-        for (int direction : pawn.captureDirections) {
-            if (move == kingPosition && move - direction == kingPosition) {
-                return true;
-            }
-        }
-        return false;
-    }
     public boolean isCastling(int position, int move){
 
         return Math.abs(position-move) ==2;

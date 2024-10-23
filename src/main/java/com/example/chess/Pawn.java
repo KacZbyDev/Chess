@@ -29,7 +29,8 @@ public class Pawn extends Piece{
         return new Image(resourceStream);
     }
     @Override
-    public void setLegalMoves(Piece[] boardRepresentation){
+    public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety){
+        Piece[] boardRepresentation = boardState.boardRepresentation;
         ArrayList<Integer> moves = new ArrayList<>();
         for(int captureDirection: captureDirections){
             int currentIndex = this.index + captureDirection;

@@ -26,11 +26,11 @@ public class BoardState {
         return temp;
 
     }
-    public void recalculateLegalMoves(){
+    public void recalculateLegalMoves(boolean ignoreKingSafety){
         for(Piece piece:this.boardRepresentation){
             if(piece!= null){
                 if(piece.type == turn){
-                    piece.setLegalMoves(this.boardRepresentation);
+                    piece.setLegalMoves(this, ignoreKingSafety);
                 }
                 else{
                     piece.setLegalMoves();
@@ -57,6 +57,10 @@ public class BoardState {
     public Piece getPiece(int index){
         if(index <= 63 && index >= 0) return boardRepresentation[index];
         throw new ArrayIndexOutOfBoundsException("Index is out of bounds");
+    }
+    public void setPiece(int index, Piece piece){
+        if(index <= 63 && index >= 0) boardRepresentation[index] = piece;
+        else throw new ArrayIndexOutOfBoundsException("Index is out of bounds");
     }
     public boolean isControled(int Position) {
         for (Piece piece : this.boardRepresentation) {
@@ -88,6 +92,9 @@ public class BoardState {
             }
         }
         return false;
+    }
+    public int getCurrentKingPosition(){
+        return !turn ? whiteKingPosition : blackKingPosition;
     }
 
 }

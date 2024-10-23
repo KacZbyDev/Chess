@@ -25,7 +25,7 @@ public abstract class Piece {
     }
 
 
-    public abstract void setLegalMoves(Piece[] boardRepresentation);
+    public abstract void setLegalMoves(BoardState boardState, boolean ignoreKingSafety);
 
     public abstract Piece deepCopy();
 
@@ -52,7 +52,14 @@ public abstract class Piece {
         return false;
     }
 
-
+    protected boolean isValid(BoardState boardState, int oldIndex, int newIndex){
+        BoardState virtualBoardState = new BoardState(boardState);
+        virtualBoardState.handleKingPosition(virtualBoardState.getPiece(oldIndex),newIndex);
+        virtualBoardState.handleBoardState(oldIndex,newIndex,-1,virtualBoardState.getPiece(oldIndex));
+        virtualBoardState.turn = !virtualBoardState.turn;
+        virtualBoardState.recalculateLegalMoves(true);
+        return !virtualBoardState.isControled(virtualBoardState.getCurrentKingPosition());
+    }
     public abstract Image getImage();
 
 
