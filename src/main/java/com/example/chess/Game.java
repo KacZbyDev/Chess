@@ -174,7 +174,7 @@ public class Game {
             boardShot.recalculateLegalMoves(false);
             int currentKingPosition = boardShot.turn ? boardShot.blackKingPosition : boardShot.whiteKingPosition;
 
-            if (!boardShot.isControled(currentKingPosition)) {
+            if (!boardShot.isCotrolled(currentKingPosition)) {
                 boardState = boardShot;
                 if(!boardState.isAnyLegalMoves()){
                     Stage stage = (Stage) boardGroup.getScene().getWindow();
@@ -189,9 +189,6 @@ public class Game {
                 boardStateUiUpdater.createImageView();
                 board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
             } else {
-                if(!boardState.isAnyLegalMoves()){
-                    System.out.println("stalemate");
-                }
                 boardShot.turn = !boardShot.turn;
                 movesHistory.removeLast();
                 resetImageViewPosition(imageView, move.getOldIndex());

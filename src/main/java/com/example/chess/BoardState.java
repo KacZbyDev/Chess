@@ -38,7 +38,7 @@ public class BoardState {
             }
         }
     }
-    public  void handleKingPosition(Piece piece, int index){
+    public void handleKingPosition(Piece piece, int index){
         if(piece instanceof King){
             if(piece.type){
                 whiteKingPosition = index;
@@ -58,13 +58,9 @@ public class BoardState {
         if(index <= 63 && index >= 0) return boardRepresentation[index];
         throw new ArrayIndexOutOfBoundsException("Index is out of bounds");
     }
-    public void setPiece(int index, Piece piece){
-        if(index <= 63 && index >= 0) boardRepresentation[index] = piece;
-        else throw new ArrayIndexOutOfBoundsException("Index is out of bounds");
-    }
-    public boolean isControled(int Position) {
+    public boolean isCotrolled(int position) {
         for (Piece piece : this.boardRepresentation) {
-            if (piece != null && canCapture(piece, Position)) {
+            if (piece != null && canCapture(piece, position)) {
                 return true;
             }
         }
@@ -72,14 +68,11 @@ public class BoardState {
     }
     private boolean canCapture(Piece piece, int position) {
         for (int move : piece.getLegalMoves()) {
-            if (piece instanceof Pawn) {
-                if (isPawnCapturingKing((Pawn) piece, move, position)) {
-                    return true;
-                }
-            } else {
-                if (move == position) {
-                    return true;
-                }
+            if (piece instanceof Pawn pawn && isPawnCapturingKing(pawn,move,position)) {
+                return true;
+            }
+            if (move == position) {
+                return true;
             }
         }
         return false;
@@ -87,7 +80,8 @@ public class BoardState {
 
     private boolean isPawnCapturingKing(Pawn pawn, int move, int position) {
         for (int direction : pawn.captureDirections) {
-            if (move == position && move - direction == position) {
+            if (move == position && pawn.index - direction == position) {
+
                 return true;
             }
         }

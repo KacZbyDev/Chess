@@ -24,15 +24,6 @@ public class BoardStateUiUpdater {
             this.imageToDelete[i] = -1;
         }
     }
-    public void createImageView(){
-        for(int i = 0; i<imageToCreate.length;i++){
-            if(imageToCreate[i] != null){
-                setImageViewParamaters(imageToCreate[i]);
-            }
-
-            imageToCreate[i] = null;
-        }
-    }
     public void setImageViewParameters(Piece piece) {
         Image image = piece.getImage();
         ImageView imageView = new ImageView(image);
@@ -45,6 +36,16 @@ public class BoardStateUiUpdater {
         Game.getGameInstance().makeDraggable(imageView);
         Game.pieceGroup.getChildren().add(imageView);
     }
+    public void createImageView(){
+        for(int i = 0; i<imageToCreate.length;i++){
+            if(imageToCreate[i] != null){
+                setImageViewParameters(imageToCreate[i]);
+            }
+
+            imageToCreate[i] = null;
+        }
+    }
+
     public void setUiUpdate(int index, int delete, Piece create){
         imageToDelete[index] = delete;
         imageToCreate[index] = create;

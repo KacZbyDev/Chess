@@ -59,7 +59,7 @@ public abstract class Piece {
         virtualBoardState.handleBoardState(oldIndex,newIndex,-1,virtualBoardState.getPiece(oldIndex));
         virtualBoardState.turn = !virtualBoardState.turn;
         virtualBoardState.recalculateLegalMoves(true);
-        return !virtualBoardState.isControled(virtualBoardState.getCurrentKingPosition());
+        return !virtualBoardState.isCotrolled(virtualBoardState.getCurrentKingPosition());
     }
     protected void addMove(ArrayList <Integer> moves, BoardState boardState, int oldIndex, int newIndex, boolean ignoreKingSafety){
         if(!ignoreKingSafety){
