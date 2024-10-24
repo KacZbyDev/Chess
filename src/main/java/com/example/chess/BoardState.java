@@ -87,8 +87,12 @@ public class BoardState {
         }
         return false;
     }
-    public int getCurrentKingPosition(){
-        return !turn ? whiteKingPosition : blackKingPosition;
+    public int getCurrentKingPosition(boolean swap){
+        if(swap){
+            return turn ? blackKingPosition : whiteKingPosition;
+        }
+
+        return turn ? whiteKingPosition : blackKingPosition;
     }
     public boolean isAnyLegalMoves(){
         for(Piece piece: boardRepresentation){

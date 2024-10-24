@@ -12,6 +12,7 @@ public abstract class Piece {
 
         this.type = type;
         this.index = index;
+        this.legalMoves = new ArrayList<>();
     }
     public int getY() {
         return this.index/8;
@@ -59,7 +60,7 @@ public abstract class Piece {
         virtualBoardState.handleBoardState(oldIndex,newIndex,-1,virtualBoardState.getPiece(oldIndex));
         virtualBoardState.turn = !virtualBoardState.turn;
         virtualBoardState.recalculateLegalMoves(true);
-        return !virtualBoardState.isCotrolled(virtualBoardState.getCurrentKingPosition());
+        return !virtualBoardState.isCotrolled(virtualBoardState.getCurrentKingPosition(true));
     }
     protected void addMove(ArrayList <Integer> moves, BoardState boardState, int oldIndex, int newIndex, boolean ignoreKingSafety){
         if(!ignoreKingSafety){

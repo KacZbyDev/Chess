@@ -119,6 +119,12 @@ public class Game {
                 }
             }
         });
+        imageView.setOnMouseClicked(event -> {
+            if(event.getButton() == MouseButton.SECONDARY){
+                Square standingSquare = (Square) boardGroup.lookup("#" + index + "r");
+                Board.getNextColor(standingSquare);
+            }
+        });
     }
 
     private void gameLoopHandler(ImageView imageView) {
@@ -131,7 +137,6 @@ public class Game {
         int newIndex = (int) column * 8 + (int) row;
 
         Move move = new Move(oldIndex, newIndex);
-
         Piece movingPiece = boardState.getPiece(oldIndex);
         if (movingPiece == null) {
             resetImageViewPosition(imageView, oldIndex);
@@ -144,7 +149,7 @@ public class Game {
             if (movingPiece instanceof Pawn && ((Pawn) movingPiece).isInBackRank(column)) {
                 newPiece = new Queen(newIndex, movingPiece.type);
             } else {
-                newPiece = movingPiece.deepCopy();
+                newPiece = movingPiece;
                 newPiece.index = newIndex;
             }
 
@@ -172,27 +177,19 @@ public class Game {
             boardShot.turn = !boardShot.turn;
             movesHistory.add(move);
             boardShot.recalculateLegalMoves(false);
-            int currentKingPosition = boardShot.turn ? boardShot.blackKingPosition : boardShot.whiteKingPosition;
-
-            if (!boardShot.isCotrolled(currentKingPosition)) {
-                boardState = boardShot;
-                if(!boardState.isAnyLegalMoves()){
-                    Stage stage = (Stage) boardGroup.getScene().getWindow();
-                    StackPane root = new StackPane();
-                    Scene scene = new Scene(root);
-                    String winner = boardState.turn ? "Black" : "White";
-                    Text text = new Text("Checkmate! the winner is " + winner);
-                    root.getChildren().add(text);
-                    stage.setScene(scene);
-                }
-                boardStateUiUpdater.deleteImageViews();
-                boardStateUiUpdater.createImageView();
-                board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
-            } else {
-                boardShot.turn = !boardShot.turn;
-                movesHistory.removeLast();
-                resetImageViewPosition(imageView, move.getOldIndex());
+            boardState = boardShot;
+            if(!boardState.isAnyLegalMoves()){
+                Stage stage = (Stage) boardGroup.getScene().getWindow();
+                StackPane root = new StackPane();
+                Scene scene = new Scene(root);
+                Text text = new Text("Game ended");
+                root.getChildren().add(text);
+                stage.setScene(scene);
             }
+            boardStateUiUpdater.deleteImageViews();
+            boardStateUiUpdater.createImageView();
+            board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
+
         } else {
             resetImageViewPosition(imageView, move.getOldIndex());
         }
