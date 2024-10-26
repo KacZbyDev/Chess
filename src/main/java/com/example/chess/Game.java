@@ -124,6 +124,7 @@ public class Game {
                 Square standingSquare = (Square) boardGroup.lookup("#" + index + "r");
                 Board.getNextColor(standingSquare);
             }
+
         });
     }
 
@@ -179,10 +180,14 @@ public class Game {
             boardShot.recalculateLegalMoves(false);
             boardState = boardShot;
             if(!boardState.isAnyLegalMoves()){
+                boardState.turn = !boardState.turn;
+                boardState.recalculateLegalMoves(true);
+                boolean isInCheck = boardState.isCotrolled(boardState.getCurrentKingPosition(true));
+                Text text = isInCheck ? new Text("Checkmate") : new Text("Stalemate");
                 Stage stage = (Stage) boardGroup.getScene().getWindow();
                 StackPane root = new StackPane();
                 Scene scene = new Scene(root);
-                Text text = new Text("Game ended");
+
                 root.getChildren().add(text);
                 stage.setScene(scene);
             }
