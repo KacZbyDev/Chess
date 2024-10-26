@@ -14,19 +14,7 @@ public class Pawn extends Piece{
         this.captureDirections = this.type ? new int[]{-7,-9} : new int[] {9,7};
         this.moveDirection = this.type ? -8:8;
         this.enPassantRank = this.type ? 3:5;
-    }
-    @Override
-    public Image getImage() {
-        String resourcePath = this.type ? "img/w-pawn.png" : "img/b-pawn.png";
-        InputStream resourceStream = getClass().getResourceAsStream(resourcePath);
-
-        if (resourceStream == null) {
-
-            System.err.println("Resource not found: " + resourcePath);
-            return null;
-        }
-
-        return new Image(resourceStream);
+        this.name = "pawn";
     }
     @Override
     public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety){
@@ -79,10 +67,6 @@ public class Pawn extends Piece{
         return position % 8 != getX() && boardRepresentation[position] == null;
     }
 
-    @Override
-    public String toString(){
-        return "Pawn";
-    }
     @Override public Piece deepCopy(){
         return new Pawn(this.index,this.type);
 

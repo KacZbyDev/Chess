@@ -11,19 +11,7 @@ public class King extends Piece{
     private final int startingSquare= this.type ? 60:4;
     public King(int index, boolean type) {
         super(type,index);
-    }
-    @Override
-    public Image getImage() {
-        String resourcePath = this.type ? "img/w-king.png" : "img/b-king.png";
-        InputStream resourceStream = getClass().getResourceAsStream(resourcePath);
-
-        if (resourceStream == null) {
-
-            System.err.println("Resource not found: " + resourcePath);
-            return null;
-        }
-
-        return new Image(resourceStream);
+        this.name = "king";
     }
 
     @Override
@@ -40,20 +28,20 @@ public class King extends Piece{
             }
         }
         this.legalMoves = moves;
-        castleHandler(boardRepresentation);
+        castleHandler(boardState);
 
     }
-    private void castleHandler(Piece[] boardRepresentation){
+    private void castleHandler(BoardState boardState){
 
         if(this.index == startingSquare && this.isFirstMove()){
+            Piece[] boardRepresentation = boardState.boardRepresentation;
             for(int direction :castleDirections){
-
                 int currentIndex  = this.index+direction;
                 int directionIndex = FieldToEndOfBoard.DIRECTION.get(direction);
                 int iterationCount = FieldToEndOfBoard.FIELDTOENDOFBOARD[this.index][directionIndex];
                 for(int i = 0; i < iterationCount;i++){
                     if(iterationCount - i ==1 && boardRepresentation[currentIndex] instanceof Rook rook && rook.isFirstMove()){
-                        this.legalMoves.add(this.index+(direction*2));
+                        if(canCastle(direction,boardState)) this.legalMoves.add(this.index + 2*direction);
                     }
                     if(boardRepresentation[currentIndex] != null){
                         break;
@@ -65,9 +53,15 @@ public class King extends Piece{
         }
 
     }
-    @Override
-    public String toString(){
-        return "King";
+
+    public boolean canCastle(int direction,BoardState boardState){
+        for (int i = 0; i <= 2; i++) {
+            int castleIndex = this.index + direction * i;
+            if(!isValid(boardState,this.index,castleIndex)){
+
+                return false;
+            }
+        }return true;
     }
 
     public boolean isCastling(int position, int move){

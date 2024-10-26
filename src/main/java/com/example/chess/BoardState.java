@@ -102,5 +102,8 @@ public class BoardState {
 
         }return false;
     }
+    public void switchTurn(){
+        turn = !turn;
+    }
 
 }

@@ -2,12 +2,14 @@ package com.example.chess;
 
 import javafx.scene.image.Image;
 
+import java.io.InputStream;
 import java.util.ArrayList;
 
 public abstract class Piece {
     protected int index;
     protected boolean type;
     protected ArrayList<Integer> legalMoves;
+    protected String name = "piece";
     public Piece(boolean type, int index) {
 
         this.type = type;
@@ -58,7 +60,7 @@ public abstract class Piece {
         BoardState virtualBoardState = new BoardState(boardState);
         virtualBoardState.handleKingPosition(virtualBoardState.getPiece(oldIndex),newIndex);
         virtualBoardState.handleBoardState(oldIndex,newIndex,-1,virtualBoardState.getPiece(oldIndex));
-        virtualBoardState.turn = !virtualBoardState.turn;
+        virtualBoardState.switchTurn();
         virtualBoardState.recalculateLegalMoves(true);
         return !virtualBoardState.isCotrolled(virtualBoardState.getCurrentKingPosition(true));
     }
@@ -73,7 +75,23 @@ public abstract class Piece {
         }
     }
 
-    public abstract Image getImage();
+    @Override
+    public String toString() {
+        String color = this.type ? "w" : "b";
+        return color+"-"+this.name;
+    }
+
+    public Image getImage(){
+        String resourcePath = "img/"+ this.toString()+".png";
+        InputStream resourceStream = getClass().getResourceAsStream(resourcePath);
+        if (resourceStream == null) {
+
+            System.err.println("Resource not found: " + resourcePath);
+            return null;
+        }
+
+        return new Image(resourceStream);
+    }
 
 
 

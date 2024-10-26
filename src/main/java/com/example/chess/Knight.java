@@ -10,24 +10,9 @@ public class Knight extends Piece {
     public Knight(int index, boolean type) {
         super(type,index);
         this.legalMoves = getLegalMoves();
+        this.name = "knight";
     }
-    public Image getImage() {
-        String resourcePath = this.type ? "img/w-knight.png" : "img/b-knight.png";
-        InputStream resourceStream = getClass().getResourceAsStream(resourcePath);
 
-        if (resourceStream == null) {
-
-            System.err.println("Resource not found: " + resourcePath);
-            return null;
-        }
-
-        return new Image(resourceStream);
-    }
-    @Override
-    public String toString(){
-
-        return "Knight";
-    }
     @Override
     public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety) {
         Piece[] boardRepresentation = boardState.boardRepresentation;

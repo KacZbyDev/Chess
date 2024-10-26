@@ -175,12 +175,12 @@ public class Game {
                 boardStateUiUpdater.setUiUpdate(1, oldRookPosition, boardShot.boardRepresentation[newRookPosition]);
             }
 
-            boardShot.turn = !boardShot.turn;
+            boardShot.switchTurn();
             movesHistory.add(move);
             boardShot.recalculateLegalMoves(false);
             boardState = boardShot;
             if(!boardState.isAnyLegalMoves()){
-                boardState.turn = !boardState.turn;
+                boardState.switchTurn();
                 boardState.recalculateLegalMoves(true);
                 boolean isInCheck = boardState.isCotrolled(boardState.getCurrentKingPosition(true));
                 Text text = isInCheck ? new Text("Checkmate") : new Text("Stalemate");
