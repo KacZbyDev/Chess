@@ -9,12 +9,14 @@ public abstract class Piece {
     protected int index;
     protected boolean type;
     protected ArrayList<Integer> legalMoves;
-    protected String name = "piece";
-    public Piece(boolean type, int index) {
-
+    protected String name;
+    private String fenName;
+    public Piece(boolean type, int index, String name, String fenName) {
         this.type = type;
         this.index = index;
         this.legalMoves = new ArrayList<>();
+        this.name = name;
+        this.fenName = fenName;
     }
     public int getY() {
         return this.index/8;
@@ -73,6 +75,9 @@ public abstract class Piece {
         else{
             moves.add(newIndex);
         }
+    }
+    public String getFenName(){
+        return this.fenName;
     }
 
     @Override

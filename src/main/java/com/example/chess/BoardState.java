@@ -5,15 +5,18 @@ public class BoardState {
     boolean turn;
     int whiteKingPosition;
     int blackKingPosition;
+    MoveHistory moveHistory;
 
     public BoardState(BoardState boardState){
         this.boardRepresentation = boardState.getDeepCopy();
         this.turn = boardState.turn;
         this.whiteKingPosition = boardState.whiteKingPosition;
         this.blackKingPosition = boardState.blackKingPosition;
+        this.moveHistory = boardState.moveHistory;
     }
     public BoardState(){
         this.boardRepresentation = new Piece[64];
+        this.moveHistory = new MoveHistory();
     }
 
     public Piece[] getDeepCopy(){
@@ -104,6 +107,16 @@ public class BoardState {
     }
     public void switchTurn(){
         turn = !turn;
+    }
+    public String getFen(){
+        return moveHistory.getFenFromBoardState(this);
+    }
+    public boolean isThreefoldRepetition(){
+        String position = getFen();
+        moveHistory.handlePositionOccurrence(position);
+        return moveHistory.getOccurrence(position) == 3;
+
+
     }
 
 }

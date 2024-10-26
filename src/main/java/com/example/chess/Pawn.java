@@ -10,11 +10,11 @@ public class Pawn extends Piece{
     int moveDirection;
     int enPassantRank;
     public Pawn(int index, boolean type) {
-        super(type,index);
+        super(type,index,"pawn","p");
         this.captureDirections = this.type ? new int[]{-7,-9} : new int[] {9,7};
         this.moveDirection = this.type ? -8:8;
         this.enPassantRank = this.type ? 3:5;
-        this.name = "pawn";
+
     }
     @Override
     public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety){

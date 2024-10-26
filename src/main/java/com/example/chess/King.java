@@ -10,8 +10,7 @@ public class King extends Piece{
     private final int[] castleDirections= new int[]{1,-1};
     private final int startingSquare= this.type ? 60:4;
     public King(int index, boolean type) {
-        super(type,index);
-        this.name = "king";
+        super(type,index,"king","k");
     }
 
     @Override

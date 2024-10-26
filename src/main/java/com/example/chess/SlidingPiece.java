@@ -4,8 +4,8 @@ import java.util.ArrayList;
 
 public abstract class SlidingPiece extends Piece{
     protected int[] directions;
-    protected SlidingPiece(boolean type, int index){
-        super(type,index);
+    protected SlidingPiece(boolean type, int index,String name, String fenNotation){
+        super(type,index,name,fenNotation);
     }
     @Override
     public void setLegalMoves(BoardState boardState, boolean ignoreKingSafety){

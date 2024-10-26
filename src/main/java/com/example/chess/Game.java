@@ -29,18 +29,18 @@ public class Game {
         this.boardState = new BoardState();
     }
 
-    public static Game getGameInstance(){
-        if(gameInstance == null){
+    public static Game getGameInstance() {
+        if (gameInstance == null) {
             gameInstance = new Game();
         }
         return gameInstance;
     }
 
-    public void launchGame(StackPane root){
+    public void launchGame(StackPane root) {
         boardState.boardRepresentation = getPieceRepresentation(STARTING_POSITION_FEN);
         boardState.turn = STARTING_POSITION_FEN.split(" ")[1].equals("w");
         boardGroup.setOnMouseClicked(mouseEvent -> {
-            if(mouseEvent.getButton() == MouseButton.PRIMARY){
+            if (mouseEvent.getButton() == MouseButton.PRIMARY) {
                 board.unHighlight(boardGroup.getChildren());
             }
         });
@@ -74,15 +74,19 @@ public class Game {
 
     public void initializePieces() {
         for (Piece piece : boardState.boardRepresentation) {
-            if(piece != null) {
-                if(boardState.turn == piece.type){
+            if (piece != null) {
+                if (boardState.turn == piece.type) {
                     piece.setLegalMoves(boardState, false);
                 } else {
                     piece.setLegalMoves();
                 }
                 boardState.handleKingPosition(piece, piece.index);
                 boardStateUiUpdater.setImageViewParameters(piece);
+
             }
+            String position = boardState.getFen();
+            boardState.moveHistory.handlePositionOccurrence(position);
+            boardState.moveHistory.getOccurrence(position);
         }
     }
 
@@ -91,13 +95,13 @@ public class Game {
         Piece piece = boardState.getPiece(index);
 
         imageView.setOnMouseEntered(_ -> {
-            if(piece.type == boardState.turn){
+            if (piece.type == boardState.turn) {
                 imageView.setCursor(Cursor.HAND);
             }
         });
 
         imageView.setOnMouseReleased(_ -> {
-            if(piece.type == boardState.turn){
+            if (piece.type == boardState.turn) {
                 imageView.setCursor(Cursor.HAND);
                 imageView.toBack();
                 gameLoopHandler(imageView);
@@ -105,7 +109,7 @@ public class Game {
         });
 
         imageView.setOnMouseDragged(event -> {
-            if(piece.type == boardState.turn && event.getButton() == MouseButton.PRIMARY){
+            if (piece.type == boardState.turn && event.getButton() == MouseButton.PRIMARY) {
                 board.unHighlight(boardGroup.getChildren());
                 double newX = event.getSceneX() - 40;
                 double newY = event.getSceneY() - 40;
@@ -120,7 +124,7 @@ public class Game {
             }
         });
         imageView.setOnMouseClicked(event -> {
-            if(event.getButton() == MouseButton.SECONDARY){
+            if (event.getButton() == MouseButton.SECONDARY) {
                 Square standingSquare = (Square) boardGroup.lookup("#" + index + "r");
                 Board.getNextColor(standingSquare);
             }
@@ -154,7 +158,7 @@ public class Game {
                 newPiece.index = newIndex;
             }
 
-            if(newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot.boardRepresentation)){
+            if (newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot.boardRepresentation)) {
                 captureIndex = move.getNewIndex() + pawn.moveDirection * -1;
             } else {
                 captureIndex = move.getNewIndex();
@@ -179,17 +183,16 @@ public class Game {
             movesHistory.add(move);
             boardShot.recalculateLegalMoves(false);
             boardState = boardShot;
-            if(!boardState.isAnyLegalMoves()){
+            if(boardShot.isThreefoldRepetition()){
+                displayEndGameMessage("draw by threefold repetition");
+            }
+
+            if (!boardState.isAnyLegalMoves()) {
                 boardState.switchTurn();
                 boardState.recalculateLegalMoves(true);
                 boolean isInCheck = boardState.isCotrolled(boardState.getCurrentKingPosition(true));
-                Text text = isInCheck ? new Text("Checkmate") : new Text("Stalemate");
-                Stage stage = (Stage) boardGroup.getScene().getWindow();
-                StackPane root = new StackPane();
-                Scene scene = new Scene(root);
-
-                root.getChildren().add(text);
-                stage.setScene(scene);
+                String message = isInCheck ? "Checkmate": "Stalemate";
+                displayEndGameMessage(message);
             }
             boardStateUiUpdater.deleteImageViews();
             boardStateUiUpdater.createImageView();
@@ -199,8 +202,17 @@ public class Game {
             resetImageViewPosition(imageView, move.getOldIndex());
         }
     }
+    private void displayEndGameMessage(String message) {
+        Text text = new Text(message);
+        Stage stage = (Stage) boardGroup.getScene().getWindow();
+        StackPane root = new StackPane();
+        Scene scene = new Scene(root);
 
-    private void resetImageViewPosition(ImageView imageView, int oldIndex){
+        root.getChildren().add(text);
+        stage.setScene(scene);
+    }
+
+    private void resetImageViewPosition(ImageView imageView, int oldIndex) {
         imageView.setX((oldIndex % 8) * SQUARE_SIZE);
         imageView.setY((oldIndex / 8) * SQUARE_SIZE);
     }

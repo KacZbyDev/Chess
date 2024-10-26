@@ -8,9 +8,8 @@ import java.util.ArrayList;
 public class Knight extends Piece {
 
     public Knight(int index, boolean type) {
-        super(type,index);
+        super(type,index,"knight","n");
         this.legalMoves = getLegalMoves();
-        this.name = "knight";
     }
 
     @Override
