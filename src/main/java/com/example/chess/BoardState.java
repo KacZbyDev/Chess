@@ -121,10 +121,13 @@ public class BoardState {
         int pieceCount = 0;
         for(Piece piece:boardRepresentation){
             if(piece!= null){
+                if(piece instanceof Rook || piece instanceof Queen || piece instanceof Pawn){
+                    return false;
+                }
                 pieceCount++;
             }
         }
-        return pieceCount == 2;
+        return pieceCount <= 3;
     }
 
 }
