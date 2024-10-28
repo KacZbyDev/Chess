@@ -2,11 +2,26 @@ package com.example.chess;
 
 import java.util.HashMap;
 
-public class MoveHistory {
+public class MoveRulesHandler {
     private HashMap<String,Integer> positionTracker;
+    private int moveCounter;
 
-    public MoveHistory() {
+    public MoveRulesHandler() {
         this.positionTracker = new HashMap<>();
+    }
+    public boolean isFiftyMoveRule(){
+        return moveCounter >= 100;
+    }
+
+    public void handleFiftyMoveRule(Move move, BoardState boardState) {
+        Piece oldIndexPiece = boardState.getPiece(move.getOldIndex());
+        Piece newIndexPiece = boardState.getPiece(move.getNewIndex());
+        if(oldIndexPiece instanceof Pawn || newIndexPiece != null) {
+            moveCounter = 0;            }
+        else{
+
+            moveCounter++;
+        }
     }
 
     public void handlePositionOccurrence(String position){

@@ -5,18 +5,18 @@ public class BoardState {
     boolean turn;
     int whiteKingPosition;
     int blackKingPosition;
-    MoveHistory moveHistory;
+    MoveRulesHandler moveRulesHandler;
 
     public BoardState(BoardState boardState){
         this.boardRepresentation = boardState.getDeepCopy();
         this.turn = boardState.turn;
         this.whiteKingPosition = boardState.whiteKingPosition;
         this.blackKingPosition = boardState.blackKingPosition;
-        this.moveHistory = boardState.moveHistory;
+        this.moveRulesHandler = boardState.moveRulesHandler;
     }
     public BoardState(){
         this.boardRepresentation = new Piece[64];
-        this.moveHistory = new MoveHistory();
+        this.moveRulesHandler = new MoveRulesHandler();
     }
 
     public Piece[] getDeepCopy(){
@@ -109,12 +109,12 @@ public class BoardState {
         turn = !turn;
     }
     public String getFen(){
-        return moveHistory.getFenFromBoardState(this);
+        return moveRulesHandler.getFenFromBoardState(this);
     }
     public boolean isThreefoldRepetition(){
         String position = getFen();
-        moveHistory.handlePositionOccurrence(position);
-        return moveHistory.getOccurrence(position) == 3;
+        moveRulesHandler.handlePositionOccurrence(position);
+        return moveRulesHandler.getOccurrence(position) == 3;
     }
 
     public boolean isInsufficientMaterial(){

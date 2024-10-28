@@ -86,8 +86,8 @@ public class Game {
 
             }
             String position = boardState.getFen();
-            boardState.moveHistory.handlePositionOccurrence(position);
-            boardState.moveHistory.getOccurrence(position);
+            boardState.moveRulesHandler.handlePositionOccurrence(position);
+            boardState.moveRulesHandler.getOccurrence(position);
         }
     }
 
@@ -158,6 +158,7 @@ public class Game {
         }
 
         if (movingPiece.isLegal(move.getNewIndex())) {
+            boardState.moveRulesHandler.handleFiftyMoveRule(move, boardState);
             BoardState boardShot = new BoardState(boardState);
 
             if (movingPiece instanceof Pawn && ((Pawn) movingPiece).isInBackRank(column)) {
@@ -192,24 +193,31 @@ public class Game {
             movesHistory.add(move);
             boardShot.recalculateLegalMoves(false);
             boardState = boardShot;
+
             if(boardState.isThreefoldRepetition()){
                 displayEndGameMessage("draw by threefold repetition");
             }
-            if(boardShot.isInsufficientMaterial()){
+
+            else if(boardShot.isInsufficientMaterial()){
                 displayEndGameMessage("draw by insufficient material");
             }
 
-            if (!boardState.isAnyLegalMoves()) {
+            else if(boardShot.moveRulesHandler.isFiftyMoveRule()){
+                displayEndGameMessage("draw by fifty move rule");
+            }
+
+            else if (!boardState.isAnyLegalMoves()) {
                 boardState.switchTurn();
                 boardState.recalculateLegalMoves(true);
                 boolean isInCheck = boardState.isCotrolled(boardState.getCurrentKingPosition(true));
                 String message = isInCheck ? "Checkmate": "Stalemate";
                 displayEndGameMessage(message);
             }
-            boardStateUiUpdater.deleteImageViews();
-            boardStateUiUpdater.createImageView();
-            board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
-
+            else{
+                boardStateUiUpdater.deleteImageViews();
+                boardStateUiUpdater.createImageView();
+                board.updateHighlightedSquares(move.getOldIndex(), move.getNewIndex());
+            }
         } else {
             resetImageViewPosition(imageView, move.getOldIndex());
         }
