@@ -115,8 +115,16 @@ public class BoardState {
         String position = getFen();
         moveHistory.handlePositionOccurrence(position);
         return moveHistory.getOccurrence(position) == 3;
+    }
 
-
+    public boolean isInsufficientMaterial(){
+        int pieceCount = 0;
+        for(Piece piece:boardRepresentation){
+            if(piece!= null){
+                pieceCount++;
+            }
+        }
+        return pieceCount == 2;
     }
 
 }

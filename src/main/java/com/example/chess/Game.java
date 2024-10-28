@@ -192,8 +192,11 @@ public class Game {
             movesHistory.add(move);
             boardShot.recalculateLegalMoves(false);
             boardState = boardShot;
-            if(boardShot.isThreefoldRepetition()){
+            if(boardState.isThreefoldRepetition()){
                 displayEndGameMessage("draw by threefold repetition");
+            }
+            if(boardShot.isInsufficientMaterial()){
+                displayEndGameMessage("draw by insufficient material");
             }
 
             if (!boardState.isAnyLegalMoves()) {
