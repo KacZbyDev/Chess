@@ -24,6 +24,7 @@ public class Game {
     public static final Group boardGroup = new Group();
     private final Board board = new Board();
     private final BoardStateUiUpdater boardStateUiUpdater = new BoardStateUiUpdater();
+    private boolean isClicked;
 
     private Game() {
         this.boardState = new BoardState();
@@ -90,6 +91,7 @@ public class Game {
         }
     }
 
+
     public void makeDraggable(ImageView imageView) {
         int index = Integer.parseInt(imageView.getId());
         Piece piece = boardState.getPiece(index);
@@ -105,12 +107,20 @@ public class Game {
                 imageView.setCursor(Cursor.HAND);
                 imageView.toBack();
                 gameLoopHandler(imageView);
+                board.unHighlight(boardGroup.getChildren());
+                isClicked = false;
             }
         });
 
         imageView.setOnMouseDragged(event -> {
             if (piece.type == boardState.turn && event.getButton() == MouseButton.PRIMARY) {
-                board.unHighlight(boardGroup.getChildren());
+                if (!isClicked) {
+                    board.unHighlight(boardGroup.getChildren());
+                    int id = Integer.parseInt(imageView.getId());
+                    Piece movingPiece = boardState.getPiece(id);
+                    board.highlightLegalMoves(movingPiece);
+                    isClicked = !isClicked;
+                }
                 double newX = event.getSceneX() - 40;
                 double newY = event.getSceneY() - 40;
                 imageView.toFront();
@@ -123,15 +133,14 @@ public class Game {
                 }
             }
         });
+
         imageView.setOnMouseClicked(event -> {
             if (event.getButton() == MouseButton.SECONDARY) {
                 Square standingSquare = (Square) boardGroup.lookup("#" + index + "r");
                 Board.getNextColor(standingSquare);
             }
-
         });
     }
-
     private void gameLoopHandler(ImageView imageView) {
         int captureIndex;
         Piece newPiece;

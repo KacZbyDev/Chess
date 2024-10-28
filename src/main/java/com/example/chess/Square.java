@@ -14,12 +14,15 @@ public class Square extends Rectangle {
     public Color[] getPrecomputedColors(){
 
         if((getCol()+getRow()) %2 == 0){
-            return new Color[]{Color.rgb(238,238,210),Color.rgb(255,74,74),Color.rgb(252,255,77)};
+            return new Color[]{Color.rgb(238,238,210),Color.rgb(255,74,74),Color.rgb(252,255,77), Color.rgb(58,79,117)};
         }
         else{
-            return new Color[]{Color.rgb(118,150,86),Color.rgb(255,0,0),Color.rgb(252,255,0)};
+            return new Color[]{Color.rgb(118,150,86),Color.rgb(255,0,0),Color.rgb(252,255,0),Color.rgb(49,40,114)};
         }
 
+    }
+    public void highlightLegalMove() {
+        this.setFill(this.precomputedColors[3]);
     }
     public int getCol(){
         return this.index % 8;

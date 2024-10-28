@@ -75,5 +75,13 @@ public class Board {
         squareUpdater(oldIndex,0);
         squareUpdater(newIndex, 1);
     }
+    public void highlightLegalMoves(Piece piece) {
+        for (int move : piece.getLegalMoves()) {
+            Square square = (Square) boardGroup.lookup("#" + move + "r");
+            if (square != null) {
+                square.highlightLegalMove();
+            }
+        }
+    }
 }
 
