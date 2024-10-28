@@ -159,7 +159,6 @@ public class Game {
 
         if (movingPiece.isLegal(move.getNewIndex())) {
             boardState.moveRulesHandler.handleFiftyMoveRule(move, boardState);
-            BoardState boardShot = new BoardState(boardState);
 
             if (movingPiece instanceof Pawn && ((Pawn) movingPiece).isInBackRank(column)) {
                 newPiece = new Queen(newIndex, movingPiece.type);
@@ -168,16 +167,16 @@ public class Game {
                 newPiece.index = newIndex;
             }
 
-            if (newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardShot.boardRepresentation)) {
+            if (newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardState.boardRepresentation)) {
                 captureIndex = move.getNewIndex() + pawn.moveDirection * -1;
             } else {
                 captureIndex = move.getNewIndex();
             }
 
             boardStateUiUpdater.setUiUpdate(1, captureIndex, null);
-            boardShot.handleBoardState(oldIndex, newIndex, captureIndex, newPiece);
+            boardState.handleBoardState(oldIndex, newIndex, captureIndex, newPiece);
             boardStateUiUpdater.setUiUpdate(0, move.getOldIndex(), newPiece);
-            boardShot.handleKingPosition(boardShot.getPiece(newIndex), newIndex);
+            boardState.handleKingPosition(boardState.getPiece(newIndex), newIndex);
 
             if (newPiece instanceof King king && king.isCastling(oldIndex, newIndex)) {
                 int castleDirection = king.getCastleDirection(oldIndex, newIndex);
@@ -185,24 +184,23 @@ public class Game {
                 int oldRookPosition = move.getOldIndex() + FieldToEndOfBoard.FIELDTOENDOFBOARD[move.getOldIndex()][directionIndex] * castleDirection;
                 int newRookPosition = move.getNewIndex() + castleDirection * -1;
 
-                boardShot.handleBoardState(oldRookPosition, newRookPosition, -1, boardShot.boardRepresentation[oldRookPosition]);
-                boardStateUiUpdater.setUiUpdate(1, oldRookPosition, boardShot.boardRepresentation[newRookPosition]);
+                boardState.handleBoardState(oldRookPosition, newRookPosition, -1, boardState.boardRepresentation[oldRookPosition]);
+                boardStateUiUpdater.setUiUpdate(1, oldRookPosition, boardState.boardRepresentation[newRookPosition]);
             }
 
-            boardShot.switchTurn();
+            boardState.switchTurn();
             movesHistory.add(move);
-            boardShot.recalculateLegalMoves(false);
-            boardState = boardShot;
+            boardState.recalculateLegalMoves(false);
 
             if(boardState.isThreefoldRepetition()){
                 displayEndGameMessage("draw by threefold repetition");
             }
 
-            else if(boardShot.isInsufficientMaterial()){
+            else if(boardState.isInsufficientMaterial()){
                 displayEndGameMessage("draw by insufficient material");
             }
 
-            else if(boardShot.moveRulesHandler.isFiftyMoveRule()){
+            else if(boardState.moveRulesHandler.isFiftyMoveRule()){
                 displayEndGameMessage("draw by fifty move rule");
             }
 
@@ -213,6 +211,7 @@ public class Game {
                 String message = isInCheck ? "Checkmate": "Stalemate";
                 displayEndGameMessage(message);
             }
+
             else{
                 boardStateUiUpdater.deleteImageViews();
                 boardStateUiUpdater.createImageView();
