@@ -164,7 +164,6 @@ public class Game {
                 newPiece = new Queen(newIndex, movingPiece.type);
             } else {
                 newPiece = movingPiece;
-                newPiece.index = newIndex;
             }
 
             if (newPiece instanceof Pawn pawn && pawn.isCapturingEnPassant(move.getNewIndex(), boardState.boardRepresentation)) {
